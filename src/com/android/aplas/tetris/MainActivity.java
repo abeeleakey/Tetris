@@ -1,64 +1,95 @@
-package com.android.aplas.tetris;
+package com.android.aplas.russiabrick;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.app.Activity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
+import android.view.View.OnTouchListener;
+import android.view.Window;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity implements
+		android.view.GestureDetector.OnGestureListener, OnTouchListener {
+
+	private final static String TAG = "main activity --->";
+
+	final int FLING_MINI_DISTANCE = 25;
+
+	private GestureDetector mGestureDector;
+	private GameView mGameView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		// setContentView(R.layout.activity_main);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-		if (savedInstanceState == null) {
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
-		}
+		mGestureDector = new GestureDetector(this, this);
+		mGameView = new GameView(this);
+		setContentView((View) mGameView);
+		mGameView.setOnTouchListener(this);
+		mGameView.setLongClickable(true);
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public boolean onDown(MotionEvent e) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "on Down");
+		return false;
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+	public void onShowPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "on show press");
 	}
 
-	/**
-	 * A placeholder fragment containing a simple view.
-	 */
-	public static class PlaceholderFragment extends Fragment {
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "on single tap up");
+		return false;
+	}
 
-		public PlaceholderFragment() {
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "on scroll");
+		return false;
+	}
+
+	@Override
+	public void onLongPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "on long press");
+	}
+
+	@Override
+	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+			float velocityY) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "on fling");
+		float e1x = e1.getX();
+		float e2x = e2.getX();
+		float e1Y = e1.getY();
+		float e2Y = e2.getY();
+		if (Math.abs(e1x - e2x) > Math.abs(e2Y - e1Y)) { // means fling on x
+			mGameView.changeBrickPotion(mGameView.DIRECTION_RIGHT);
 		}
 
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main, container,
-					false);
-			return rootView;
-		}
+		return false;
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		// TODO Auto-generated method stub
+		// return false;
+		return mGestureDector.onTouchEvent(event);
 	}
 
 }
