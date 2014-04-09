@@ -1,4 +1,4 @@
-package com.android.aplas.russiabrick;
+package com.android.aplas.tetris;
 
 import android.app.Activity;
 import android.os.Bundle;
