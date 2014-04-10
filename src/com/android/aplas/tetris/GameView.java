@@ -1,5 +1,7 @@
 package com.android.aplas.tetris;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -24,13 +26,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 	GamaePaintThread mGameThread = null;
 	private SurfaceHolder mSurfaceHolder;
 
+	private Map mMap = null;
+
+	ArrayList<Layer> mDrawableObjects = new ArrayList<Layer>();
+
 	public GameView(Context context) {
 		super(context);
 		mPaint.setTextSize(20);
 		mSurfaceHolder = getHolder();
 		mSurfaceHolder.addCallback(this);
-
 		mGameThread = new GamaePaintThread(mSurfaceHolder);
+		mMap = new Map(100, 100, 20, 20);
+		mDrawableObjects.add(mMap);
 	}
 
 	// @Override
@@ -71,7 +78,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		// TODO Auto-generated method stub
 		Log.d(DEBUG_TAG, "surface create");
 		mGameThread.start();
-
 	}
 
 	@Override
@@ -101,8 +107,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				synchronized (mHolder) {
 					mCanvas = mHolder.lockCanvas();
 					if (null != mCanvas) {
-						mCanvas.drawARGB(255, 255, 255, 255);
-						mCanvas.drawText("hello world!", 50, 50, mPaint);
+						for (Layer layer : mDrawableObjects) {
+							layer.drawLayer(mCanvas);
+						}
 					}
 					try {
 						Thread.sleep(1000);
