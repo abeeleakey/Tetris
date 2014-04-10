@@ -3,33 +3,43 @@ package com.android.aplas.tetris;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.view.View;
+import android.util.Log;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 
-public class GameView extends View {
+public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
-	Paint mPaint = new Paint();
-
-	private int mBrickX = 50, mBrickY = 50;
-
-	private final int INCREMENT_LENGTH = 30;
+	private final static String DEBUG_TAG = "game view --->";
 
 	public static final int DIRECTION_LEFT = 1;
 	public static final int DIRECTION_TOP = 2;
 	public static final int DIRECTION_RIGHT = 3;
 	public static final int DIRECTION_BOTTOM = 4;
 
+	private int mBrickX = 50, mBrickY = 50;
+
+	private final int INCREMENT_LENGTH = 30;
+
+	private Paint mPaint = new Paint();
+	GamaePaintThread mGameThread = null;
+	private SurfaceHolder mSurfaceHolder;
+
 	public GameView(Context context) {
 		super(context);
 		mPaint.setTextSize(20);
+		mSurfaceHolder = getHolder();
+		mSurfaceHolder.addCallback(this);
+
+		mGameThread = new GamaePaintThread(mSurfaceHolder);
 	}
 
-	@Override
-	protected void onDraw(Canvas canvas) {
-		// TODO Auto-generated method stub
-		super.onDraw(canvas);
-
-		canvas.drawText("hello world", mBrickX, mBrickY, mPaint);
-	}
+	// @Override
+	// protected void onDraw(Canvas canvas) {
+	// // TODO Auto-generated method stub
+	// super.onDraw(canvas);
+	//
+	// canvas.drawText("hello world", mBrickX, mBrickY, mPaint);
+	// }
 
 	// the direction
 	public synchronized void changeBrickPotion(int direction) {
@@ -49,7 +59,63 @@ public class GameView extends View {
 		case DIRECTION_BOTTOM:
 			break;
 		}
-		postInvalidate();
 	}
 
+	@Override
+	public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void surfaceCreated(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG, "surface create");
+		mGameThread.start();
+
+	}
+
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		// TODO Auto-generated method stub
+		Log.d(DEBUG_TAG, "surface destroy");
+		mGameThread.stopThread();
+	}
+
+	class GamaePaintThread extends Thread {
+		SurfaceHolder mHolder;
+		Canvas mCanvas;
+		boolean mRun = true;
+
+		public GamaePaintThread(SurfaceHolder sHolder) {
+			mHolder = sHolder;
+		}
+
+		public void stopThread() {
+			mRun = false;
+		}
+
+		@Override
+		public void run() {
+			while (mRun) {
+				// mCanvas = null;
+				synchronized (mHolder) {
+					mCanvas = mHolder.lockCanvas();
+					if (null != mCanvas) {
+						mCanvas.drawARGB(255, 255, 255, 255);
+						mCanvas.drawText("hello world!", 50, 50, mPaint);
+					}
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} finally {
+						if (null != mHolder) {
+							mHolder.unlockCanvasAndPost(mCanvas);
+						}
+					}
+				}
+			}
+		}
+	}
 }
