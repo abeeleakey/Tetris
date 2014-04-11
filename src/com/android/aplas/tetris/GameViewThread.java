@@ -9,7 +9,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class GameView extends SurfaceView implements SurfaceHolder.Callback {
+public class GameViewThread extends SurfaceView implements
+		SurfaceHolder.Callback {
 
 	private final static String DEBUG_TAG = "game view --->";
 
@@ -30,7 +31,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	ArrayList<Layer> mDrawableObjects = new ArrayList<Layer>();
 
-	public GameView(Context context) {
+	public GameViewThread(Context context) {
 		super(context);
 		mPaint.setTextSize(20);
 		mSurfaceHolder = getHolder();
@@ -87,19 +88,90 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 		mGameThread.stopThread();
 	}
 
+	public void onPause() {
+		mGameThread.onPause();
+	}
+
+	public void onResume() {
+		mGameThread.onResume();
+	}
+
 	class GamaePaintThread extends Thread {
+
 		SurfaceHolder mHolder;
 		Canvas mCanvas;
 		boolean mRun = true;
+		private boolean mPaused;
 
 		public GamaePaintThread(SurfaceHolder sHolder) {
+			super();
+
 			mHolder = sHolder;
+			mRequestRender = true;
 		}
 
 		public void stopThread() {
 			mRun = false;
 		}
 
+		public void onPause() {
+			synchronized (mGameThreadManager) {
+				mPaused = true;
+				mGameThreadManager.notifyAll();
+			}
+		}
+
+		public void onResume() {
+			synchronized (mGameThreadManager) {
+				mPaused = false;
+				mRequestRender = true;
+				mGameThreadManager.notifyAll();
+			}
+		}
+
+		public void onSurfaceDestroy() {
+			synchronized (mGameThreadManager) {
+				mHasSurface = false;
+				mGameThreadManager.notifyAll();
+			}
+			while ((!mWaitingForSurface) && (!mExited)) {
+				try {
+					mGameThreadManager.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+
+		public void onSurfaceChanged(int w, int h) {
+			synchronized (mGameThreadManager) {
+				mSizeChanged = true;
+				mRequestRender = true;
+				mRenderComplete = false;
+				mGameThreadManager.notifyAll();
+			}
+			while (!mExited && !mPaused && !mRenderComplete) {
+				try {
+					mGameThreadManager.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					Thread.currentThread().interrupt();
+				}
+			}
+		}
+
+		public void onSurfaceCreate() {
+			synchronized (mGameThreadManager) {
+				mHasSurface = true;
+				mGameThreadManager.notifyAll();
+			}
+		}
+
+		private void guardedRun(){
+			
+		}
+		
 		@Override
 		public void run() {
 			while (mRun) {
@@ -124,5 +196,39 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 				}
 			}
 		}
+	}
+
+	private boolean mExited;
+	private boolean mHasSurface;
+	private boolean mRequestRender;
+	private boolean mRenderComplete;
+	private boolean mWaitingForSurface;
+	private boolean mSizeChanged = true;
+	private static final GemeViewThreadManager mGameThreadManager = new GemeViewThreadManager();
+
+	private static class GemeViewThreadManager {
+
+		public synchronized void threadExisting(GameViewThread thread) {
+			thread.mExited = true;
+			if (thread == mThreadOwner) {
+				mThreadOwner = null;
+			}
+			notifyAll();
+		}
+
+		public boolean tryAcquireSurfaceLocked(GameViewThread thread) {
+			if (mThreadOwner == thread || null == mThreadOwner) {
+				mThreadOwner = thread;
+				notifyAll();
+				return true;
+			}
+			if (mMultipleContextsAllowed) {
+				return true;
+			}
+			return false;
+		}
+
+		private GameViewThread mThreadOwner;
+		private boolean mMultipleContextsAllowed;
 	}
 }
