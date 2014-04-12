@@ -85,7 +85,6 @@ public class GameViewThread extends SurfaceView implements
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
 		Log.d(DEBUG_TAG, "surface destroy");
-		mGameThread.stopThread();
 	}
 
 	public void onPause() {
@@ -108,10 +107,6 @@ public class GameViewThread extends SurfaceView implements
 
 			mHolder = sHolder;
 			mRequestRender = true;
-		}
-
-		public void stopThread() {
-			mRun = false;
 		}
 
 		public void onPause() {
@@ -168,15 +163,15 @@ public class GameViewThread extends SurfaceView implements
 			}
 		}
 
-		private void guardedRun(){
-			
+		private void guardedRun() {
+
 		}
-		
+
 		@Override
 		public void run() {
-			while (mRun) {
+			while (true) {
 				// mCanvas = null;
-				synchronized (mHolder) {
+				synchronized (mGameThreadManager) {
 					mCanvas = mHolder.lockCanvas();
 					if (null != mCanvas) {
 						for (Layer layer : mDrawableObjects) {
