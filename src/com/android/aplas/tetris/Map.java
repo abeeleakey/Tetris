@@ -19,7 +19,7 @@ public class Map extends Layer {
 	}
 
 	@Override
-	void drawLayer(Canvas canvas) {
+	public void draw(Canvas canvas) {
 		// TODO Auto-generated method stub
 		canvas.drawText("MAP here", 100, 100, mPaint);
 	}

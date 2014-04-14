@@ -156,6 +156,21 @@ public class GameViewThread extends SurfaceView implements
 			}
 		}
 
+		public void requestExitAndWait() {
+			synchronized (mGameThreadManager) {
+				mShouldExist = true;
+				mGameThreadManager.notifyAll();
+				while (!mExited) {
+					try {
+						mGameThreadManager.wait();
+					} catch (Exception e) {
+						// TODO: handle exception
+						Thread.currentThread().interrupt();
+					}
+				}
+			}
+		}
+
 		public void onSurfaceCreate() {
 			synchronized (mGameThreadManager) {
 				mHasSurface = true;
@@ -175,7 +190,7 @@ public class GameViewThread extends SurfaceView implements
 					mCanvas = mHolder.lockCanvas();
 					if (null != mCanvas) {
 						for (Layer layer : mDrawableObjects) {
-							layer.drawLayer(mCanvas);
+							layer.draw(mCanvas);
 						}
 					}
 					try {
@@ -199,6 +214,7 @@ public class GameViewThread extends SurfaceView implements
 	private boolean mRenderComplete;
 	private boolean mWaitingForSurface;
 	private boolean mSizeChanged = true;
+	private boolean mShouldExist;
 	private static final GemeViewThreadManager mGameThreadManager = new GemeViewThreadManager();
 
 	private static class GemeViewThreadManager {

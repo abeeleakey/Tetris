@@ -2,7 +2,7 @@ package com.android.aplas.tetris;
 
 import android.graphics.Canvas;
 
-public abstract class Layer {
+public abstract class Layer implements BaseObject {
 
 	protected int mWidth, mHeight;
 	protected int mCoordinateX, mCoordinateY;
@@ -19,10 +19,14 @@ public abstract class Layer {
 	 * @param height
 	 */
 	public Layer(int x, int y, int width, int height) {
-		this.mCoordinateX = x;
-		this.mCoordinateY = y;
+		this(x, y);
 		this.mWidth = width;
 		this.mHeight = height;
+	}
+
+	public Layer(int x, int y) {
+		this.mCoordinateX = x;
+		this.mCoordinateY = y;
 	}
 
 	/**
@@ -56,7 +60,7 @@ public abstract class Layer {
 
 	void setWidthImpl(int width) {
 		if (width < 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("");
 		}
 		this.mWidth = width;
 	}
@@ -68,5 +72,4 @@ public abstract class Layer {
 		this.mHeight = height;
 	}
 
-	abstract void drawLayer(Canvas canvas);
 }
