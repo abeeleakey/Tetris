@@ -6,7 +6,8 @@ import android.graphics.Canvas;
 
 public class BlockLayer extends Layer implements BaseObject {
 
-	private int mCoordX, mCoordY, mRows, mCloums;
+	private int mCoordX, mCoordY;
+	private final int mRows, mCloums;
 	private Bitmap mBlock;
 	private int[][] mShape;
 	private Object layerLock = new Object();

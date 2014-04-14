@@ -81,6 +81,15 @@ public class GameViewThread extends SurfaceView implements
 		mGameThread.start();
 	}
 
+	public void addDrawableObject(Layer layer) {
+		mDrawableObjects.add(layer);
+	}
+
+	// thread not safe, have no idea at moment
+	public void removeDrawableObject(Layer layer) {
+		mDrawableObjects.remove(layer);
+	}
+
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub

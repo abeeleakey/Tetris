@@ -9,19 +9,20 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 public class Map extends Layer {
-	
-	Paint mPaint = new Paint();
 
-	public Map(int x, int y, int width, int height) {
-		super(x, y, width, height);
+	// rows:20 columns:10
+	private int[][] mMap = null;
+
+	public Map(int x, int y, int rows, int columns) {
+		super(x, y, rows, columns);
 		// TODO Auto-generated constructor stub
-		mPaint.setColor(Color.RED);
+		mMap = new int[rows][columns];
 	}
 
 	@Override
 	public void draw(Canvas canvas) {
 		// TODO Auto-generated method stub
-		canvas.drawText("MAP here", 100, 100, mPaint);
+
 	}
 
 }
