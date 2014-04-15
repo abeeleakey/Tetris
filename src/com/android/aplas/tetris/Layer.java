@@ -1,6 +1,5 @@
 package com.android.aplas.tetris;
 
-import android.graphics.Canvas;
 
 public abstract class Layer implements BaseObject {
 

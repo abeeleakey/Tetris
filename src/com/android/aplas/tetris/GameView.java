@@ -3,14 +3,16 @@ package com.android.aplas.tetris;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-public class GameViewThread extends SurfaceView implements
-		SurfaceHolder.Callback {
+public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private final static String DEBUG_TAG = "game view --->";
 
@@ -23,31 +25,28 @@ public class GameViewThread extends SurfaceView implements
 
 	private final int INCREMENT_LENGTH = 30;
 
-	private Paint mPaint = new Paint();
 	GamaePaintThread mGameThread = null;
 	private SurfaceHolder mSurfaceHolder;
 
-	private Map mMap = null;
+	private BlockLayer mBlockLayer = null;
+	Bitmap mBlockBitmap;
 
-	ArrayList<Layer> mDrawableObjects = new ArrayList<Layer>();
+	public ArrayList<Layer> mDrawableObjects = new ArrayList<Layer>();
 
-	public GameViewThread(Context context) {
+	public GameView(Context context) {
 		super(context);
-		mPaint.setTextSize(20);
+
+		mBlockBitmap = BitmapFactory.decodeResource(getResources(),
+				R.drawable.block);
+
 		mSurfaceHolder = getHolder();
 		mSurfaceHolder.addCallback(this);
 		mGameThread = new GamaePaintThread(mSurfaceHolder);
-		mMap = new Map(100, 100, 20, 20);
-		mDrawableObjects.add(mMap);
+		mBlockLayer = new BlockLayer(0, 50, mBlockBitmap,
+				BlocksData.mBlockShapeInData[1]);
+		mDrawableObjects.add(mBlockLayer);
+		mGameThread.start();
 	}
-
-	// @Override
-	// protected void onDraw(Canvas canvas) {
-	// // TODO Auto-generated method stub
-	// super.onDraw(canvas);
-	//
-	// canvas.drawText("hello world", mBrickX, mBrickY, mPaint);
-	// }
 
 	// the direction
 	public synchronized void changeBrickPotion(int direction) {
@@ -78,7 +77,7 @@ public class GameViewThread extends SurfaceView implements
 	public void surfaceCreated(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
 		Log.d(DEBUG_TAG, "surface create");
-		mGameThread.start();
+
 	}
 
 	public void addDrawableObject(Layer layer) {
@@ -199,7 +198,9 @@ public class GameViewThread extends SurfaceView implements
 					mCanvas = mHolder.lockCanvas();
 					if (null != mCanvas) {
 						for (Layer layer : mDrawableObjects) {
-							layer.draw(mCanvas);
+							if (null != layer) {
+								layer.draw(mCanvas);
+							}
 						}
 					}
 					try {
@@ -228,7 +229,7 @@ public class GameViewThread extends SurfaceView implements
 
 	private static class GemeViewThreadManager {
 
-		public synchronized void threadExisting(GameViewThread thread) {
+		public synchronized void threadExisting(GameView thread) {
 			thread.mExited = true;
 			if (thread == mThreadOwner) {
 				mThreadOwner = null;
@@ -236,7 +237,7 @@ public class GameViewThread extends SurfaceView implements
 			notifyAll();
 		}
 
-		public boolean tryAcquireSurfaceLocked(GameViewThread thread) {
+		public boolean tryAcquireSurfaceLocked(GameView thread) {
 			if (mThreadOwner == thread || null == mThreadOwner) {
 				mThreadOwner = thread;
 				notifyAll();
@@ -248,7 +249,7 @@ public class GameViewThread extends SurfaceView implements
 			return false;
 		}
 
-		private GameViewThread mThreadOwner;
+		private GameView mThreadOwner;
 		private boolean mMultipleContextsAllowed;
 	}
 }

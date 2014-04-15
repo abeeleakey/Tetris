@@ -18,21 +18,22 @@ public class MainActivity extends Activity implements
 	final int FLING_MINI_DISTANCE = 25;
 
 	private GestureDetector mGestureDector;
-	private GameViewThread mGameView;
+	private GameView mGameView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// setContentView(R.layout.activity_main);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		DisplayMetrics dm = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		// setContentView(R.layout.activity_main);
 
-		mGestureDector = new GestureDetector(this, this);
-		mGameView = new GameViewThread(this);
-		setContentView((View) mGameView);
-		mGameView.setOnTouchListener(this);
-		mGameView.setLongClickable(true);
+		// mGestureDector = new GestureDetector(this, this);
+		mGameView = new GameView(this);
+		setContentView(mGameView);
+
+		// mGameView.setOnTouchListener(this);
+		// mGameView.setLongClickable(true);
 	}
 
 	@Override

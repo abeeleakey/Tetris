@@ -1,27 +1,21 @@
 package com.android.aplas.tetris;
 
-public class BlocksData {
+class BlocksData {
 
-	int[][][] mBlockShapeInData = new int[][][] {
+	static final int[][][] mBlockShapeInData = new int[][][] {
 	/*
 	 * ----
 	 */
 	{ { 1, 0, 0, 0 }, { 1, 0, 0, 0 }, { 1, 0, 0, 0 }, { 1, 0, 0, 0 } },
 	/*
-	 * |
-	 * |
-	 * |
-	 * |
+	 * | | | |
 	 */
 	{ { 1, 1, 1, 1 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } },
 	/*
 	 * 
-	 * |
-	 * --
-	 *  |
-	 * 
+	 * | -- |
 	 */
-			{ { 0, 0, 0, 0 }, { 0, 0, 1, 0 }, { 0, 1, 1, 0 }, { 0, 1, 0, 0 } },
+	{ { 0, 0, 0, 0 }, { 0, 0, 1, 0 }, { 0, 1, 1, 0 }, { 0, 1, 0, 0 } },
 
 	};
 
